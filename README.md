@@ -14,8 +14,8 @@ const res = await hotReload({
     functionsToLoad: [
         { 
             pathGlob: `${process.cwd()}/events/**`, callbackFunction: (path, event) => {
-                const splitted = path.split("/")
-                const eventName = splitted.reverse()[0].replace(".js", "");
+                const eventNameUnformatted = path.split("/").pop()
+                const eventName = eventNameUnformatted.replace(".js", "");
                 client.eventPaths.set(eventName, { eventName, path: resolve(path) });
                 event(client);
             } 
