@@ -14,7 +14,7 @@ const res = await hotReload({
     functionsToLoad: [
         { 
             pathGlob: `${process.cwd()}/events/**`, callbackFunction: (path, event) => {
-                const splitted = resolve(path).split("/")
+                const splitted = path.split("/")
                 const eventName = splitted.reverse()[0].replace(".js", "");
                 client.eventPaths.set(eventName, { eventName, path: resolve(path) });
                 event(client);
@@ -39,7 +39,7 @@ const res = await hotReload({
                     "temporary": ["temp"],
                     "utility": ["util"],
                 }
-                const splitted = resolve(path).split("/")
+                const splitted = path.split("/")
                 const category = splitted.slice(splitted.indexOf("message") + 1)[0]?.toLowerCase() || "none";
                 if(cmd.preCommands?.length) cmd.preCommands.forEach(s => {
                     s.parent = cmd.name
