@@ -15,19 +15,40 @@ npm i hotreload
 
 ## Import-able Functions
 
- - `hotReload` :Function(hotReloadOptions)
- - `Utils` : all Util Functions:
+```js
+const { hotReload, Utils } = require("hotreload");
+```
+
+ - `hotReload` **Function(hotReloadOptions)**
+ - `Utils` : **all Util Functions**:
     - `loadAllPaths(paths, functionPaths)`, -> for Each Path: require(path) + execute the first callbackFunction of where the pathGlob matches the current path
     - `filterStrings(str)` -> matching function to filter an array to only contain valid strings,
 
 ## hotReloadOptions: 
 
- - `excluded` string[] --> array of string-globs to **not reload** file-paths matching that glob
- - `onlyReload` string[] --> array of string-globs to **only reload** file-paths matching that glob | Default: "*" aka everything
- - `functionsToLoad` reloadFunctionObject[] --> array of string-gl
+```ts
+interface hotReloadOptions {
+    excluded?: string[];
+    onlyReload?: string[];
+    functionsToLoad?: { pathGlob: string, callbackFunction: string }[];
+}[];
+```
+
+ - `excluded` **string[]** --> array of string-globs to **not reload** file-paths matching that glob
+ - `onlyReload` **string[]** --> array of string-globs to **only reload** file-paths matching that glob | Default: "*" aka everything
+ - `functionsToLoad` **reloadFunctionObject[]** --> array of string-gl
     - `functionsToLoad reloadFunctionObject` :
-        - `pathGlob`: string --> string-glob to **execute** the callbackFunction
-        - `callbackFunction`: Function(path, pull) -> callback Function to execute, once the pathGlob is matching
+        - `pathGlob`: **string** --> string-glob to **execute** the callbackFunction
+        - `callbackFunction`: **Function(path, pull)** -> callback Function to execute, once the pathGlob is matching
+
+## hotReload Return data
+
+```ts
+interface hotReloadReturnData {
+    success: string[]; // strings of paths which were "successful"
+    failed: { path: string, error: TypeError }[]; // path + error for each "failed" reload
+}
+```
 
 ## Why are functionsToLoad useful?
 
@@ -53,6 +74,8 @@ const res = await hotReload({
         }
     ]
 })
+console.log(`Successfully reloaded ${res.success.length} Paths, and failed on ${res.failed.length}`)
+res.failed.forEach(data => console.error(data));
 ```
 
 ### Example Usage - Discord Bot
