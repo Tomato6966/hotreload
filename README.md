@@ -85,16 +85,16 @@ const { hotReload } = require("hotreload");
 // if you reload events / listeners, make sure to clear them first!
 await client.removeAllListeners();
 // reloader function
-const res = await hotReload({ 
-    excluded: ["**/node_modules/**", "**/api/**", `${process.cwd()}/index.js`, `${process.cwd()}/bot.js`, `${process.cwd()}/Cluster.js`], 
-    onlyReload: [ "**/*.js", "**/*.json" ],
-    functionsToLoad: [
+const res = await hotReload({ // don't reload the node_modules, the bot.js and the sharder Files 
+    excluded: ["**/node_modules/**", `${process.cwd()}/bot.js`, `${process.cwd()}/Shard.js`], 
+    onlyReload: [ "**/*.js", "**/*.json" ], // reload .js and .json files
+    functionsToLoad: [ 
         {   // simple execute "module.exports () => {}" functions with parameters
             pathGlob: `${process.cwd()}/extenders/**`, callbackFunction: (path, pull) => pull(client) // pull = require(path)
         }, 
         {   // store pull data in a cache, + use the path to get the filename (aka eventName) + then execute the requirement
             pathGlob: `${process.cwd()}/events/**`, callbackFunction: (path, event) => { // pull = require(path)
-                const eventName = path.split("/").pop().replace(".js", "")
+                const eventName = path.split("/").pop().replace(".js", "");
                 client.eventPaths.set(eventName, { eventName, path: resolve(path) });
                 event(client);
             } 
