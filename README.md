@@ -89,42 +89,18 @@ const res = await hotReload({
     excluded: ["**/node_modules/**", "**/api/**", `${process.cwd()}/index.js`, `${process.cwd()}/bot.js`, `${process.cwd()}/Cluster.js`], 
     onlyReload: [ "**/*.js", "**/*.json" ],
     functionsToLoad: [
-        { 
-            pathGlob: `${process.cwd()}/events/**`, callbackFunction: (path, event) => {
-                const eventNameUnformatted = path.split("/").pop()
-                const eventName = eventNameUnformatted.replace(".js", "");
+        {   // simple execute "module.exports () => {}" functions with parameters
+            pathGlob: `${process.cwd()}/extenders/**`, callbackFunction: (path, pull) => pull(client) // pull = require(path)
+        }, 
+        {   // store pull data in a cache, + use the path to get the filename (aka eventName) + then execute the requirement
+            pathGlob: `${process.cwd()}/events/**`, callbackFunction: (path, event) => { // pull = require(path)
+                const eventName = path.split("/").pop().replace(".js", "")
                 client.eventPaths.set(eventName, { eventName, path: resolve(path) });
                 event(client);
             } 
         }, 
-        {  // pull = require(path)
-            pathGlob: `${process.cwd()}/extenders/**`, callbackFunction: (path, pull) => pull(client)
-        },
-        { 
-            pathGlob: `${process.cwd()}/commands/**`, 
-            callbackFunction: (path, pull) => { // const pull = require(path);
-                const cmd = pull;
-                const categories = {
-                    "administrator":  ["Admin"],
-                    "equalizer": ["equalizers", "eq", "eqs", "equalicer", "musicbased", "music"],
-                    "moderaton": ["mod"],
-                    "player": ["musicbased", "music"],
-                    "queue": ["musicbased", "music"],
-                    "filter": ["filters", "musicbased", "music"],
-                    "setups": ["setup"],
-                    "settings": ["setting"],
-                    "temporary": ["temp"],
-                    "utility": ["util"],
-                }
-                const splitted = path.split("/")
-                const category = splitted.slice(splitted.indexOf("message") + 1)[0]?.toLowerCase() || "none";
-                if(cmd.preCommands?.length) cmd.preCommands.forEach(s => {
-                    s.parent = cmd.name
-                    s.category = category;
-                    s.altCategories = (categories[category] || []);
-                });
-                client.commands.set(cmd.name, {...cmd, category, altCategories: (categories[category] || []) });
-            }
+        {   // just update the cache for client.commands, with the pull ;)
+            pathGlob: `${process.cwd()}/commands/**`, callbackFunction: (path, cmd) => client.commands.set(cmd.name, cmd); // const pull = require(path);
         },
     ]
 });
