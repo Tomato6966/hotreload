@@ -1,10 +1,64 @@
 # hotreload
 Nodejs projet hot reloader - reload your packages, files and caches easily.
 
-# Example Usage
+# Install
+
+<div align="center">
+  <p>
+    <a href="https://nodei.co/npm/hotreload/"><img src="https://nodei.co/npm/hotreload.png?downloads=true&stars=true" alt="https://npmjs.com/hotreload" /></a>
+  </p>
+</div>
+
+```
+npm i hotreload
+```
+
+## Import-able Functions
+
+ - `hotReload` :Function(hotReloadOptions)
+ - `Utils` : all Util Functions:
+    - `loadAllPaths(paths, functionPaths)`, -> for Each Path: require(path) + execute the first callbackFunction of where the pathGlob matches the current path
+    - `filterStrings(str)` -> matching function to filter an array to only contain valid strings,
+
+## hotReloadOptions: 
+
+ - `excluded` string[] --> array of string-globs to **not reload** file-paths matching that glob
+ - `onlyReload` string[] --> array of string-globs to **only reload** file-paths matching that glob | Default: "*" aka everything
+ - `functionsToLoad` reloadFunctionObject[] --> array of string-gl
+    - `functionsToLoad reloadFunctionObject` :
+        - `pathGlob`: string --> string-glob to **execute** the callbackFunction
+        - `callbackFunction`: Function(path, pull) -> callback Function to execute, once the pathGlob is matching
+
+## Why are functionsToLoad useful?
+
+ - You can easily execute scripts upon specific Path-Globs
+ - With that you can update Caches / Savings of pulls
+ - With that you can technically restart express apps too!
+ - You could restart websocket-/EventEmitter listeners (make sure to clear them first)
+
+## Example-Usage
 
 ```js
-const { hotReload } = require("hotreloader");
+const { hotReload } = require("hotreload");
+
+const res = await hotReload({
+    excluded: [ "**/node_modules/**" ], // don't reload stuff with node_modules in path
+    onlyReload: [ "**/*.js", "**/*.json" ], // only reload stuff which ends with *.js or **/*.json
+    functionsToLoad: [ // array of objects, with pathGlobs, and callbackFunction, which get's executed when the pathGlob match is true
+        {
+            pathGlob: "**/exports/**/*.js", callbackFunction: (path, pull) => { // pull = require(path);
+                if(path.includes("defaults")) pull.default(); // you can execute any functions from that pull:  module.exports = { default: () => {} }
+                else pull(); // or even direct execute the pull. if that file: module.exports = () => { ... };
+            }
+        }
+    ]
+})
+```
+
+### Example Usage - Discord Bot
+
+```js
+const { hotReload } = require("hotreload");
 // if you reload events / listeners, make sure to clear them first!
 await client.removeAllListeners();
 // reloader function

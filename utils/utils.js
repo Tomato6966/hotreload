@@ -39,10 +39,10 @@ const loadAllPaths = async (paths, functionPaths = []) => {
 
 /**
  * Mapping function for filtering strings
- * @param {any} x 
+ * @param {string|any} str 
  * @returns {boolean} true if It's a string
  */
-const filterStrings = (x) => typeof x === "string" && x.length;
+const filterStrings = (str) => typeof str === "string" && str.length;
 
 module.exports = {
     loadAllPaths, filterStrings
