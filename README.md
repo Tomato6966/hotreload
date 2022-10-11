@@ -106,3 +106,7 @@ const res = await hotReload({ // don't reload the node_modules, the bot.js and t
 });
 console.log(res, res.success.length, res.failed.length)
 ```
+
+### Example Video
+
+https://user-images.githubusercontent.com/68145571/195047254-f17040d5-3e19-412c-bd26-a596d076870f.mp4
