@@ -20,20 +20,34 @@ const minimatch = require("minimatch")
 const loadAllPaths = async (paths, functionPaths = []) => {
     const success = [];
     const failed = [];
+    const reloadFunctionPaths = []
     await Promise.all(
         paths.map(async (path) => {
             try {
                 delete require.cache[resolve(path)];
                 const pull = require(resolve(path));
                 const reloadFunction = functionPaths.find(x => minimatch(path, x.pathGlob, { matchBase: true, dot: true }))
-                if(reloadFunction && reloadFunction.fnOptions) path(...(reloadFunction.fnOptions || []));
-                else if(reloadFunction && reloadFunction.callbackFunction) await reloadFunction.callbackFunction(path, pull);
+                if(reloadFunction && reloadFunction.callbackFunction) reloadFunctionPaths.push({ callbackFunction: reloadFunction.callbackFunction, path, pull });
                 success.push(path);
             } catch (error) {
                 failed.push({ path, error })
             }
         })
     );
+    // execute callbacks AFTER everything is reloaded.
+    await Promise.all(
+        reloadFunctionPaths.map(async ({path, pull, callbackFunction }) => {
+            try {
+                await callbackFunction(path, pull);
+            } catch (error) {
+                const index = success.indexOf(path);
+                if(index >= 0) success.splice(index, 1);
+                failed.push({
+                    path, error
+                })
+            }
+        })
+    )
     return { success, failed };
 }
 

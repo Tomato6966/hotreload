@@ -20,7 +20,11 @@ const hotReload = async (options = {}) => {
     const onlyReload = options.onlyReload?.filter?.(filterStrings) ?? ["*"];
     const functionsToLoad = options.functionsToLoad?.filter?.(x => typeof x?.pathGlob == "string" && x?.pathGlob?.length);
     const toReload = [];
-    const paths = Object.values(require.cache).map(x => x.filename)
+    const paths = Object.values(require.cache).map(x => x.filename).sort((a,b) => {
+        const y = b.endsWith(".json");
+        const x = a.endsWith(".json");
+        return (x === y) ? 0 : x ? -1 : 1
+    })
     if(!onlyReload.length) throw new SyntaxError("No paths to reload since onlyReload is empty")
     for await(const path of paths) {
         if(excluded.length && excluded.some(glob => minimatch(path, glob, { matchBase: true, dot: true }))) continue
