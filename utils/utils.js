@@ -15,9 +15,13 @@ const minimatch = require("minimatch")
 /**
  * @param {*} paths 
  * @param {reloadFunction[]} functionPaths 
+ * @param {Object} require The "node:module require function"
  * @returns {returnValue} Reload Information
  */
-const loadAllPaths = async (paths, functionPaths = []) => {
+const loadAllPaths = async (paths, functionPaths = [], requ) => {
+    const require = requ || require || (globalThis || {}).require;
+    if(!require?.cache) throw new Error("Require.cache is not available");
+    if(!require?.resolve) throw new Error("Require.resolve is not available");
     const success = [];
     const failed = [];
     const reloadFunctionPaths = []
