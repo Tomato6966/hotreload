@@ -1,5 +1,17 @@
 const { resolve } = require("path");
-const minimatch = require("minimatch")
+const minimatch = require("minimatch");
+
+const getRequire = () => {
+    try {
+        return require;
+    } catch {
+        try {
+            return (globalThis || {}).require || {};
+        } catch {
+            return {}
+        }
+    }
+}
 
 /**
  * @param {string} path the path of the file
@@ -19,7 +31,7 @@ const minimatch = require("minimatch")
  * @returns {returnValue} Reload Information
  */
 const loadAllPaths = async (paths, functionPaths = [], requ) => {
-    const require = requ || require || (globalThis || {}).require;
+    const require = requ || getRequire();
     if(!require?.cache) throw new Error("Require.cache is not available");
     if(!require?.resolve) throw new Error("Require.resolve is not available");
     const success = [];
@@ -63,5 +75,5 @@ const loadAllPaths = async (paths, functionPaths = [], requ) => {
 const filterStrings = (str) => typeof str === "string" && str.length;
 
 module.exports = {
-    loadAllPaths, filterStrings
+    loadAllPaths, filterStrings, getRequire
 }

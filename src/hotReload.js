@@ -1,5 +1,5 @@
 const minimatch = require("minimatch");
-const { loadAllPaths, filterStrings } = require("../utils/utils.js");
+const { loadAllPaths, filterStrings, getRequire } = require("../utils/utils.js");
 
 /**
  * @typedef { (path: string, pull:any) => void } callbackFunction
@@ -11,6 +11,7 @@ const { loadAllPaths, filterStrings } = require("../utils/utils.js");
  * @typedef { { excluded?: string[], onlyReload?: string[], functionsToLoad?: reloadFunction[] } } reloadOptions
  * @typedef {{ require?: Object }} requireOptions
  */
+
 
 /**
  * @param {reloadOptions & requireOptions} options 
@@ -32,10 +33,7 @@ const { loadAllPaths, filterStrings } = require("../utils/utils.js");
  */
 const hotReload = async (options = {}) => {
     // Support optional require function (for ESM or custom require)
-    const require = options.require || {
-        cache: (globalThis || {}).require?.cache || (require || {})?.cache || {},
-        resolve: (globalThis || {}).require?.resolve || (require || {})?.resolve || (() => {})
-    };
+    const require = options.require || getRequire();
 
     if(!require?.cache) throw new Error("Require.cache is not available");
     if(!require?.resolve) throw new Error("Require.resolve is not available");
@@ -59,6 +57,7 @@ const hotReload = async (options = {}) => {
     const returnVal = await loadAllPaths(toReload, functionsToLoad, require);
     return returnVal
 };
+
 module.exports = {
     hotReload
 };
