@@ -12,6 +12,9 @@ Nodejs projet hot reloader - reload your packages, files and caches easily.
 ```
 npm i hotreload
 ```
+```
+npm i github.com/tomato6966/hotreload
+```
 
 ## Import-able Functions
 
@@ -110,3 +113,75 @@ console.log(res, res.success.length, res.failed.length)
 ### Example Video
 
 https://user-images.githubusercontent.com/68145571/195047254-f17040d5-3e19-412c-bd26-a596d076870f.mp4
+
+---
+
+## ESM / TypeScript Usage
+
+### ES Module Imports (Bun, Node.js 18+)
+
+```js
+// For Bun: 
+bun run src/hotReload.js
+
+// For Node.js 18+:
+import { hotReload } from "./src/hotReload.js";
+
+// Or if using createRequire for ESM:
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+
+await hotReload({
+    onlyReload: ["**/*.js", "**/*.json"],
+    req: require  // pass require function for ESM compatibility
+});
+```
+
+### TypeScript Support
+
+```ts
+import { hotReload } from "hotreload";
+
+type hotReloadOptions = {
+    excluded?: string[];
+    onlyReload?: string[];
+    functionsToLoad?: { pathGlob: string; callbackFunction: (path: string, pull: any) => void }[];
+};
+type hotReloadReturnData = {
+    success: string[];
+    failed: { path: string; error: TypeError }[];
+};
+
+const res: Promise<hotReloadReturnData> = await hotReload({
+    onlyReload: ["**/*.ts*"],
+    functionsToLoad: [
+        {
+            pathGlob: "**/*.ts",
+            callbackFunction: (path, pull) => {
+                pull();
+            }
+        }
+    ]
+});
+
+console.log(res);
+```
+
+### TS Compatibility
+
+```js
+// Works without specifying req (defaults to global require)
+const { hotReload } = require("hotreload");
+
+await hotReload({
+    onlyReload: ["**/*.js"]
+});
+
+// Or pass require explicitly
+const { createRequire } = require("module");
+const require = createRequire(import.meta.url);
+await hotReload({
+    onlyReload: ["**/*.js"],
+    req: require
+});
+```

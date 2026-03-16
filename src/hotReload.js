@@ -1,3 +1,4 @@
+const minimatch = require("minimatch");
 const { loadAllPaths, filterStrings } = require("../utils/utils.js");
 
 /**
@@ -50,9 +51,9 @@ const hotReload = async (options = {}) => {
     });
     if(!onlyReload.length) throw new SyntaxError("No paths to reload since onlyReload is empty");
     for await(const path of paths) {
-        if(excluded.length && excluded.some(glob => require.resolve?.(glob))) continue
+        if(excluded.length && excluded.some(glob => minimatch(path, glob, { matchBase: true, dot: true }))) continue
         // if it's not inside a onlyReload glob
-        if(!onlyReload.length || !onlyReload.some(glob => require.resolve?.(glob))) continue;
+        if(!onlyReload.length || !onlyReload.some(glob => minimatch(path, glob, { matchBase: true, dot: true }))) continue;
         toReload.push(path);
     }
     const returnVal = await loadAllPaths(toReload, functionsToLoad, require);

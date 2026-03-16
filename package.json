@@ -1,6 +1,6 @@
 {
   "name": "hotreload",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Nodejs projet hot reloader - reload your packages, files and caches easily.",
   "main": "index.js",
   "scripts": {
@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/Tomato6966/hotreload/issues"
   },
-  "homepage": "https://github.com/Tomato6966/hotreload#readme"
+  "homepage": "https://github.com/Tomato6966/hotreload#readme",
+  "dependencies": {
+    "minimatch": "^10.2.4"
+  }
 }
