@@ -1,4 +1,4 @@
-const minimatch = require("minimatch");
+const { minimatch } = require("minimatch");
 const { loadAllPaths, filterStrings, getRequire } = require("../utils/utils.js");
 
 /**
